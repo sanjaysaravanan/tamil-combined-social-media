@@ -1,16 +1,48 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import PostList from "../component/Posts";
+import { createPost, getAllPosts, deletePost } from "../api";
+import { useDispatch } from "react-redux";
 
 const PostForm = () => {
   const [image, setImage] = useState("");
   const [caption, setCaption] = useState("");
+  const [posts, setPosts] = useState([]);
 
-  const handleSubmit = (e) => {
+  const dispatch = useDispatch();
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log({ image, caption });
-    setImage("");
-    setCaption("");
+    try {
+      const data = await createPost({ image, caption });
+      setPosts([...posts, data.newPost]);
+      setImage("");
+      setCaption("");
+      dispatch({
+        type: "show_msg",
+        alert: { msg: "Add Post Success!!!", type: "success" },
+      });
+    } catch (e) {
+      alert("Error: " + e.message);
+    }
   };
+
+  const deleteAPost = async (id) => {
+    await deletePost(id);
+    dispatch({
+      type: "show_msg",
+      alert: { msg: "Post Delete Success!!!", type: "success" },
+    });
+    setPosts(posts.filter((post) => post.id !== id));
+  };
+
+  const loadMyPosts = async () => {
+    const data = await getAllPosts();
+    setPosts(data);
+  };
+
+  useEffect(() => {
+    loadMyPosts();
+  }, []);
 
   return (
     <>
@@ -45,7 +77,7 @@ const PostForm = () => {
         </button>
       </form>
       <div style={{ margin: 16 }}>
-        <PostList />
+        <PostList postData={posts} deleteAPost={deleteAPost} />
       </div>
     </>
   );

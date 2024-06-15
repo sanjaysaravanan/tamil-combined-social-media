@@ -1,15 +1,57 @@
 import PropTypes from "prop-types";
 
-const Post = ({ userName, image, caption, likes }) => {
+const Post = ({
+  userName,
+  image,
+  caption,
+  likes,
+  deleteAPost = () => undefined,
+  id,
+  profilePic,
+}) => {
+  const localUser = JSON.parse(localStorage.getItem("user"));
   return (
     <div className="card mb-4">
-      <img src={image} className="card-img-top" alt={caption} />
+      <img
+        src={image}
+        style={{ height: 300, objectFit: "contain" }}
+        className="card-img-top"
+        alt={caption}
+      />
       <div className="card-body">
-        <h5 className="card-title">{userName}</h5>
-        <p className="card-text">{caption}</p>
+        <div className="row">
+          <img
+            className="col-4"
+            style={{ objectFit: "contain" }}
+            src={profilePic}
+            alt={userName}
+          />
+          <h5 className="col-8 card-title">{userName}</h5>
+        </div>
+        <p
+          className="card-text"
+          style={{
+            maxWidth: "100%",
+            whiteSpace: "nowrap",
+            textOverflow: "ellipsis",
+            overflow: "hidden",
+          }}
+        >
+          {caption}
+        </p>
         <p className="card-text">
           <small className="text-muted">{likes} likes</small>
         </p>
+        {localUser.email === userName && (
+          <i
+            role="button"
+            className="fa-solid fa-trash-can fa-2x"
+            onClick={() => deleteAPost(id)}
+          ></i>
+        )}
+        {localUser.email !== userName && (
+          <i className="fa-regular fa-heart"></i>
+        )}
       </div>
     </div>
   );
@@ -20,34 +62,13 @@ Post.propTypes = {
   image: PropTypes.string.isRequired,
   caption: PropTypes.string.isRequired,
   likes: PropTypes.number.isRequired,
+  deleteAPost: PropTypes.func,
+  id: PropTypes.string.isRequired,
+  profilePic: PropTypes.string,
 };
 
-const postData = [
-  {
-    userName: "travel_blogger",
-    image:
-      "https://tiesinstitute.com/wp-content/uploads/2021/01/shutterstock_268004744-2.jpg",
-    caption:
-      "Exploring the beautiful landscapes of New Zealand! #travel #adventure",
-    likes: 1500,
-  },
-  {
-    userName: "foodie_chef",
-    image:
-      "https://img.freepik.com/free-photo/side-view-cook-making-delicious-pasta_23-2150690631.jpg",
-    caption: "Homemade pasta with a creamy garlic sauce 🍝 #foodie #cooking",
-    likes: 2300,
-  },
-  {
-    userName: "fitness_guru",
-    image:
-      "https://img.freepik.com/free-photo/achievement-muscle-gym-man-active_1139-707.jpg",
-    caption: "Morning workout to kickstart the day! #fitness #healthyliving",
-    likes: 3200,
-  },
-];
-
-const PostList = () => {
+// eslint-disable-next-line react/prop-types
+const PostList = ({ postData = [], deleteAPost = () => undefined }) => {
   return (
     <div className="container">
       <div className="row">
@@ -58,6 +79,9 @@ const PostList = () => {
               image={post.image}
               caption={post.caption}
               likes={post.likes}
+              id={post.id}
+              deleteAPost={deleteAPost}
+              profilePic={post.profilePic}
             />
           </div>
         ))}

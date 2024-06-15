@@ -1,4 +1,6 @@
+import { useSelector } from "react-redux";
 import { Link, Outlet } from "react-router-dom";
+import AlertMsg from "../component/AlertMsg";
 
 const links = [
   {
@@ -17,6 +19,31 @@ const links = [
     icon: <i className="fa-solid fa-user fa-2x"></i>,
   },
 ];
+
+const Loader = () => {
+  const showLoading = useSelector((state) => state.pageInfoReducer.loading);
+
+  return (
+    <div
+      style={{
+        zIndex: 999999,
+        position: "fixed",
+        height: "100vh",
+        width: "100%",
+        display: showLoading ? "flex" : "none",
+        placeContent: "center",
+        placeItems: "center",
+        backgroundColor: "rgba(0, 0, 0, 0.5)",
+        top: 0,
+      }}
+    >
+      <i
+        className="fa-solid fa-spinner fa-spin fa-3x"
+        style={{ color: "white" }}
+      ></i>
+    </div>
+  );
+};
 
 const Layout = () => {
   return (
@@ -44,6 +71,8 @@ const Layout = () => {
       <div style={{ height: "100vh", marginLeft: 200 }}>
         <Outlet />
       </div>
+      <Loader />
+      <AlertMsg />
     </>
   );
 };

@@ -1,14 +1,8 @@
 import { useState } from "react";
+import { updateUser } from "../api";
 
 const Profile = () => {
-  const initialProfile = {
-    name: "John Doe",
-    image:
-      "https://t4.ftcdn.net/jpg/03/64/21/11/360_F_364211147_1qgLVxv1Tcq0Ohz3FawUfrtONzz8nq3e.jpg",
-    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-    dob: "1990-01-01",
-    email: "johndoe@example.com",
-  };
+  const initialProfile = JSON.parse(localStorage.getItem("user"));
 
   const [profile, setProfile] = useState(initialProfile);
   const [editMode, setEditMode] = useState(false);
@@ -29,9 +23,18 @@ const Profile = () => {
     setTempProfile(profile);
   };
 
-  const handleSave = () => {
-    setProfile(tempProfile);
-    setEditMode(false);
+  const handleSave = async () => {
+    try {
+      const data = await updateUser(initialProfile.email, tempProfile);
+      localStorage.setItem("user", JSON.stringify(data.updatedUser));
+      setProfile(data.updatedUser);
+    } catch (err) {
+      console.log(err);
+      alert(err.message);
+    } finally {
+      // this block will be executed irrespective error or not
+      setEditMode(false);
+    }
   };
 
   return (
@@ -63,7 +66,7 @@ const Profile = () => {
                   </div>
                   <div className="mb-3">
                     <label className="form-label">Date of Birth:</label>
-                    <div>{profile.dob}</div>
+                    <div>{profile.dob.slice(0, 10)}</div>
                   </div>
                   <div className="mb-3">
                     <label className="form-label">Email:</label>
@@ -110,7 +113,7 @@ const Profile = () => {
                       type="date"
                       className="form-control"
                       name="dob"
-                      value={tempProfile.dob}
+                      value={tempProfile.dob.slice(0, 10)}
                       onChange={handleInputChange}
                     />
                   </div>
@@ -127,6 +130,7 @@ const Profile = () => {
                   <button className="btn btn-success me-2" onClick={handleSave}>
                     Save
                   </button>
+                  &nbsp;
                   <button className="btn btn-secondary" onClick={handleCancel}>
                     Cancel
                   </button>
